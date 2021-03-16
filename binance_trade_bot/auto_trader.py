@@ -122,12 +122,12 @@ class AutoTrader:
         # stopped. Not logging though to reduce log size.
         print(
             str(datetime.now())
-            + " - CONSOLE - INFO - I am scouting the best trades. Current coin: {} ".format(
-                current_coin + self.config.BRIDGE
+            + " - CONSOLE - INFO - I am scouting the best trades. Current coin: {0} ({1} ".format(
+            current_coin + self.config.BRIDGE,self.manager.get_currency_balance(current_coin_sym)
             ),
             end="\r",
         )
-
+         
         current_coin_price = get_market_ticker_price_from_list(all_tickers, current_coin + self.config.BRIDGE)
 
         if current_coin_price is None:
@@ -152,6 +152,10 @@ class AutoTrader:
             # Obtain (current coin)/(optional coin)
             coin_opt_coin_ratio = current_coin_price / optional_coin_price
 
+            current_value = (coin_opt_coin_ratio - self.config.SCOUT_TRANSACTION_FEE * self.config.SCOUT_MULTIPLIER * coin_opt_coin_ratio) 
+            difference = (current_value - pair.ratio) / pair.ratio * 100
+            print(str(datetime.now()) + " ** PAIR {} to {} via {} Diff: {}% (Curr:{} - Opt:{}) ".format(current_coin.symbol,pair.to_coin.symbol,self.config.BRIDGE,round(difference, 2),current_coin_price,optional_coin_price))
+            
             transaction_fee = self.manager.get_fee(pair.from_coin, self.config.BRIDGE, True) + self.manager.get_fee(
                 pair.to_coin, self.config.BRIDGE, False
             )
